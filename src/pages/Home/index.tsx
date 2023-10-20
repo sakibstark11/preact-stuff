@@ -1,45 +1,37 @@
-import { useState } from "preact/hooks";
+import { useCallback, useEffect } from "preact/hooks";
 import Loader from "../../components/Loader/index";
 import Search from "../../components/Search";
 import useAbortController from "../../hooks/useAbortController";
 import todoRepo from "../../repos/todo";
+import useFetchData from "../../hooks/useFetchData";
+import TodoDisplay from "../../components/TodoDisplay";
 
 export default function Home() {
-  const [todo, setTodo] = useState<Todo>();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string>();
-  const getAbortSignal = useAbortController();
-  const { getTodoById } = todoRepo(getAbortSignal);
+    const getAbortSignal = useAbortController();
+    const { getTodoById } = todoRepo(getAbortSignal);
 
-  const fetchTodo = (id: string) => {
-    setLoading(true);
-    getTodoById(id)
-      .then((data) => {
-        setTodo(data);
-        setError(null);
-        setLoading(false);
-      })
-      .catch((err: Error) => {
-        setTodo(null);
-        setError(err.message);
-        setLoading(false);
-      });
-  };
+    const { loading, error, data, executeFunction } = useFetchData(
+        (id: string) => getTodoById(id)
+    );
 
-  return (
-    <>
-      {loading && <Loader />}
-      <br />
-      {error && <h4>{error}</h4>}
-      <br />
-      {!loading && todo && (
+    useEffect(() => {
+        executeFunction("1");
+    }, [executeFunction]);
+
+    return (
         <>
-          <h1>{todo.title}</h1>
-          <h2>{todo.id}</h2>
+            <Search
+                onChange={(id: string) => {
+                    executeFunction(id);
+                }}
+            />
+
+            {loading && <Loader />}
+            <br />
+            {error && <h4>{error}</h4>}
+            <br />
+            {!loading && data && <TodoDisplay todo={data} />}
+            <br />
         </>
-      )}
-      <br />
-      <Search onChange={fetchTodo} />
-    </>
-  );
+    );
 }
