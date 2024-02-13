@@ -20,7 +20,7 @@ export default function Home() {
                 setState({ loading: false, todo: data, error: null });
             })
             .catch((err: Error) => {
-                setState({ loading: false, todo: null, error: error.message });
+                setState({ loading: false, todo: null, error: err.message });
             });
     };
 
