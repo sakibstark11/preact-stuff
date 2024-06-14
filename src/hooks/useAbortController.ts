@@ -5,12 +5,15 @@ export default function useAbortController() {
         new AbortController()
     );
 
-    const getSignal = () => {
-        controller.abort();
-        const newController = new AbortController();
-        setController(newController);
-        return newController.signal;
-    };
+    useEffect(() => {
+        const signal = controller.signal;
 
-    return getSignal;
+        console.warn("signal", signal);
+        setController(new AbortController());
+        return () => {
+            controller.abort();
+        };
+    });
+
+    return controller.signal;
 }

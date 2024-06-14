@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "preact/hooks";
+import { useEffect } from "preact/hooks";
 import Loader from "../../components/Loader/index";
 import Search from "../../components/Search";
 import useAbortController from "../../hooks/useAbortController";
@@ -10,21 +10,21 @@ export default function Home() {
     const getAbortSignal = useAbortController();
     const { getTodoById } = todoRepo(getAbortSignal);
 
-    const { loading, error, data, executeFunction } = useFetchData(
-        (id: string) => getTodoById(id)
+    const [executeFunction, loading, data, error] = useFetchData((id) =>
+        getTodoById(id)
     );
 
+    const handleSearch = (id: string) => {
+        executeFunction(id);
+    };
+
     useEffect(() => {
-        executeFunction("1");
+        executeFunction("5");
     }, [executeFunction]);
 
     return (
         <>
-            <Search
-                onChange={(id: string) => {
-                    executeFunction(id);
-                }}
-            />
+            <Search onChange={handleSearch} />
 
             {loading && <Loader />}
             <br />
